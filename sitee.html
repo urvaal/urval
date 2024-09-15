@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>URVAL</title>
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background-color: #000;
+      font-family: 'Courier New', Courier, monospace;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      background: #111;
+    }
+    
+    #timer {
+      color: #fff;
+      font-size: 5em;
+      text-align: center;
+      z-index: 2;
+      filter: drop-shadow(0 0 10px red);
+      user-select: none; /* Отключаем выделение текста */
+    }
+
+    #timer span {
+      display: inline-block;
+      margin: 0 0.2em;
+    }
+
+    .background {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: url('white-noise.gif') no-repeat center center;
+      background-size: cover;
+      filter: brightness(0.2);
+      z-index: 1;
+    }
+
+    .overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 2;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="background"></div>
+  <div class="overlay"></div>
+
+  <div id="timer">
+    <span id="days"></span>:<span id="hours"></span>:<span id="minutes"></span>:<span id="seconds"></span>
+  </div>
+
+  <!-- music -->
+  <audio id="music" loop>
+    <source src="semptember20.mp3" type="audio/mpeg">
+    Your browser does not support the audio element.
+  </audio>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script>
+    const music = document.getElementById('music');
+    const tickSound = document.getElementById('tickSound'); // Получаем элемент со звуком
+
+    // Включение music после клика пользователя
+    document.body.addEventListener('click', () => {
+      music.play();
+    });
+
+    const countdown = () => {
+      const endDate = new Date('September 20, 2024 00:00:00').getTime();
+      const now = new Date().getTime();
+      const timeLeft = endDate - now;
+
+      const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+
+      document.getElementById('days').innerHTML = days;
+      document.getElementById('hours').innerHTML = hours < 10 ? `0${hours}` : hours;
+      document.getElementById('minutes').innerHTML = minutes < 10 ? `0${minutes}` : minutes;
+      document.getElementById('seconds').innerHTML = seconds < 10 ? `0${seconds}` : seconds;
+
+      if (timeLeft < 0) {
+        clearInterval(timerInterval);
+        document.getElementById('timer').innerHTML = 'URVAL';
+      }
+    }
+
+    const timerInterval = setInterval(countdown, 1000);
+
+    // Более редкая тряска через GSAP
+    const glitchAnimation = () => {
+      // Время между "встрясками"
+      const pauseBetweenWiggles = gsap.timeline({ repeat: -1, repeatDelay: 2 });
+
+      pauseBetweenWiggles.to("#timer span", {
+        keyframes: [
+          { x: 2, y: -2, duration: 0.1 },
+          { x: -3, y: 3, duration: 0.1 },
+          { x: 0, y: 0, duration: 0.5 }
+        ],
+        stagger: {
+          amount: 0.3,
+        }
+      }).to("#timer", {
+        duration: 0.5,
+        filter: "blur(2px)",
+        yoyo: true,
+        repeat: 1,
+        ease: "power1.inOut"
+      }, "<"); // Параллельный запуск с тряской
+    }
+
+    glitchAnimation();
+  </script>
+
+</body>
+</html>
